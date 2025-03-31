@@ -1,0 +1,31 @@
+name: Deploy Terraform with Managed Identity
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  terraform:
+    runs-on: ubuntu-latest  # Uses GitHub-hosted runner
+ 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+ 
+      - name: Authenticate with Azure Managed Identity
+        run: |
+          az login --identity --username ${{ secrets.AZURE_CLIENT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+ 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+ 
+      - name: Initialize Terraform
+        run: terraform init
+ 
+      - name: Plan Terraform
+        run: terraform plan
+ 
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
